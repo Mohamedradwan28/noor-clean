@@ -2,7 +2,7 @@
 import { supabase } from '../../lib/supabaseClient';
 
 export default async function handler(req, res) {
-  if (!['GET', 'POST', 'PUT'].includes(req.method)) {
+  if (!['GET', 'PUT', 'POST'].includes(req.method)) {
     return res.status(405).json({ error: 'Method not allowed' });
   }
 
@@ -15,59 +15,53 @@ export default async function handler(req, res) {
       
       if (error) throw error;
       
-      // تحويل المصفوفة إلى كائن
       const settings = {};
-      data.forEach(item => {
-        settings[item.key] = item.value;
-      });
+      if (Array.isArray(data)) {
+        data.forEach(item => {
+          if (item?.key && item?.value !== undefined) {
+            settings[item.key.trim()] = item.value;
+          }
+        });
+      }
       
+      res.setHeader('Cache-Control', 'no-store, max-age=0');
       return res.status(200).json(settings);
     }
 
-    // ===== POST/PUT: حفظ أو تحديث إعداد =====
-    if (req.method === 'POST' || req.method === 'PUT') {
+    // ===== PUT/POST: تحديث أو إضافة باستخدام UPSERT =====
+    if (req.method === 'PUT' || req.method === 'POST') {
       const { key, value } = req.body;
       
-      if (!key) {
-        return res.status(400).json({ error: 'Key is required' });
+      if (!key || key.trim() === '') {
+        return res.status(400).json({ error: 'مفتاح الإعداد (key) مطلوب' });
       }
       
-      // تحقق إذا كان المفتاح موجود
-      const { data: existing } = await supabase
+      const cleanKey = key.trim();
+      const cleanValue = value !== undefined ? String(value).trim() : '';
+      
+      // ✅ استخدم upsert: يحدث لو موجود، يضيف لو مش موجود
+      const { data, error } = await supabase
         .from('settings')
-        .select('*')
-        .eq('key', key)
+        .upsert(
+          { 
+            key: cleanKey, 
+            value: cleanValue,
+            updated_at: new Date().toISOString()
+          },
+          { 
+            onConflict: 'key',  // ✅ لو الـ key مكرر، حدّثه مش ارمي خطأ
+            ignoreDuplicates: false 
+          }
+        )
+        .select()
         .single();
       
-      let result, error;
-      
-      if (existing) {
-        // تحديث
-        ({ data: result, error } = await supabase
-          .from('settings')
-          .update({ 
-            value, 
-            updated_at: new Date().toISOString() 
-          })
-          .eq('key', key)
-          .select()
-          .single());
-      } else {
-        // إضافة جديد
-        ({ data: result, error } = await supabase
-          .from('settings')
-          .insert([{ 
-            key, 
-            value,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          }])
-          .select()
-          .single());
+      if (error) {
+        console.error('Supabase upsert error:', error);
+        return res.status(500).json({ error: error.message });
       }
       
-      if (error) throw error;
-      return res.status(200).json(result);
+      return res.status(200).json(data);
     }
 
   } catch (error) {

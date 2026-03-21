@@ -26,43 +26,25 @@ export default async function handler(req, res) {
       return res.status(200).json(result || []);
     }
 
-    // ===== POST: إضافة مقال =====
+    // ===== POST: إضافة مقال جديد =====
     if (method === 'POST') {
-      // ✅ نأخذ فقط الحقول الموجودة فعلياً في جدول articles
       const {
-        title,
-        slug,
-        excerpt,
-        content,
-        category,
-        image,
-        author,
-        tags,
-        published_at,
-        active
+        title, slug, excerpt, content, image, category, tags, author, active, published_at
       } = req.body;
 
       if (!title || !slug) {
         return res.status(400).json({ error: 'العنوان و Slug مطلوبين' });
       }
 
-      // ✅ نبني объект نظيف بدون حقول محسوبة
-      const articleData = {
-        title,
-        slug,
-        excerpt: excerpt || '',
-        content: content || '',
-        category: category || '',
-        image: image || '',
-        author: author || 'نور كلين',
-        tags: Array.isArray(tags) ? tags : [],
-        published_at: published_at || new Date().toISOString(),
-        active: active !== undefined ? active : true
-      };
-
       const { data, error } = await supabase
         .from('articles')
-        .insert([articleData])
+        .insert([{
+          title, slug, excerpt, content, image, category, 
+          tags: Array.isArray(tags) ? tags : [],
+          author: author || 'نور كلين',
+          active: active !== undefined ? active : true,
+          published_at: published_at || new Date().toISOString()
+        }])
         .select()
         .single();
 
@@ -79,13 +61,13 @@ export default async function handler(req, res) {
       const { id, ...updateData } = req.body;
       if (!id) return res.status(400).json({ error: 'ID مطلوب' });
 
-      // ✅ نزيل أي حقول مش في الجدول
-      const { readTime, formattedDate, isoDate, excerpt, ...cleanData } = updateData;
+      // استبعاد الحقول المحسوبة
+      const { readTime, formattedDate, isoDate, ...cleanData } = updateData;
 
       const { data, error } = await supabase
         .from('articles')
         .update(cleanData)
-        .eq('id', id)
+        .eq('id', Number(id))
         .select()
         .single();
 
@@ -99,11 +81,18 @@ export default async function handler(req, res) {
 
     // ===== DELETE: حذف مقال =====
     if (method === 'DELETE') {
-      const { id } = req.query;
+      const { id } = req.body;
       if (!id) return res.status(400).json({ error: 'ID مطلوب' });
 
-      const { error } = await supabase.from('articles').delete().eq('id', id);
-      if (error) return res.status(500).json({ error: error.message });
+      const { error } = await supabase
+        .from('articles')
+        .delete()
+        .eq('id', Number(id));
+
+      if (error) {
+        console.error('Delete Error:', error);
+        return res.status(500).json({ error: error.message });
+      }
 
       return res.status(200).json({ success: true });
     }
@@ -111,7 +100,7 @@ export default async function handler(req, res) {
     return res.status(405).json({ error: 'Method not allowed' });
 
   } catch (error) {
-    console.error('API Error:', error);
+    console.error('Articles API Error:', error);
     return res.status(500).json({ error: error.message });
   }
 }
