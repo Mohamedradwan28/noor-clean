@@ -160,7 +160,7 @@ export default function Layout({ children, title = 'نور كلين', descriptio
       <p>
         تم التصميم بواسطة{' '}
         <a 
-          href="https://wa.me/201148875706" 
+          href="https://wa.me/201148875106" 
           target="_blank" 
           rel="noopener noreferrer"
           style={{
