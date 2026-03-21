@@ -1,0 +1,12 @@
+User-agent: *
+Allow: /
+
+# Allow all pages for indexing
+Sitemap: https://noorclean.com/sitemap.xml
+
+# Block admin pages
+Disallow: /admin/
+Disallow: /api/
+
+# Crawl-delay for respectful crawling
+Crawl-delay: 10

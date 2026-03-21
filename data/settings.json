@@ -1,0 +1,25 @@
+{
+  "siteName": "نور كلين",
+  "tagline": "شريكك للنظافة في الرياض",
+  "phone": "0500000000",
+  "whatsapp": "966500000000",
+  "email": "info@noorclean.com",
+  "address": "الرياض، المملكة العربية السعودية",
+  "workingHours": "يومياً من 8 صباحاً حتى 10 مساءً",
+  "discount": "خصم 20% على أول خدمة",
+  "googleMaps": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d231234.5678!2d46.6753!3d24.7136",
+  "seo": {
+    "defaultTitle": "نور كلين | خدمات تنظيف ومكافحة حشرات متكاملة بالرياض",
+    "defaultDescription": "أفضل خدمات التنظيف ومكافحة الحشرات في الرياض. ضمان كامل، فريق محترف، مواد آمنة معتمدة. اتصل الآن واحصل على عرض خاص",
+    "defaultKeywords": "تنظيف، مكافحة حشرات، الرياض، نور كلين، تنظيف فلل، تنظيف شقق، تنظيف كنب، غسيل سجاد",
+    "canonical": "https://noorclean.com"
+  },
+  "adminPassword": "admin123",
+  "features": {
+    "whatsappFloat": true,
+    "showPrices": false,
+    "showTestimonials": true,
+    "enableBlog": true,
+    "enableOrders": true
+  }
+}
