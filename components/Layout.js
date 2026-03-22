@@ -80,33 +80,43 @@ export default function Layout({ children, title = 'نور كلين', descriptio
   );
 
   // ✅ أيقونة الهامبرجر المتحركة
-  const HamburgerIcon = ({ open }) => (
-    <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
-      <line 
-        x1="3" y1="6" x2="21" y2="6" 
-        style={{ 
-          transform: open ? 'rotate(45deg) translate(6px, 6px)' : 'none',
-          transformOrigin: 'center',
-          transition: 'all 0.3s ease'
-        }} 
-      />
-      <line 
-        x1="3" y1="12" x2="21" y2="12" 
-        style={{ 
-          opacity: open ? 0 : 1,
-          transition: 'opacity 0.2s ease'
-        }} 
-      />
-      <line 
-        x1="3" y1="18" x2="21" y2="18" 
-        style={{ 
-          transform: open ? 'rotate(-45deg) translate(6px, -6px)' : 'none',
-          transformOrigin: 'center',
-          transition: 'all 0.3s ease'
-        }} 
-      />
-    </svg>
-  );
+  // ✅ أيقونة الهامبرجر المتحركة - نسخة محسّنة
+const HamburgerIcon = ({ open }) => (
+  <svg 
+    viewBox="0 0 24 24" 
+    width="24" 
+    height="24" 
+    fill="none" 
+    stroke="currentColor" 
+    strokeWidth="2" 
+    strokeLinecap="round"
+    className="hamburger-svg"
+  >
+    <line 
+      className="hamburger-line top"
+      x1="3" y1="6" x2="21" y2="6" 
+      style={{ 
+        transform: open ? 'rotate(45deg) translate(6px, 6px)' : 'none',
+        transformOrigin: 'center',
+      }} 
+    />
+    <line 
+      className="hamburger-line middle"
+      x1="3" y1="12" x2="21" y2="12" 
+      style={{ 
+        opacity: open ? 0 : 1,
+      }} 
+    />
+    <line 
+      className="hamburger-line bottom"
+      x1="3" y1="18" x2="21" y2="18" 
+      style={{ 
+        transform: open ? 'rotate(-45deg) translate(6px, -6px)' : 'none',
+        transformOrigin: 'center',
+      }} 
+    />
+  </svg>
+);
 
   const CloseIcon = () => (
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -1263,6 +1273,58 @@ export default function Layout({ children, title = 'نور كلين', descriptio
   }
 }
 
+
+
+/* ========== تحسين أنيميشن الهامبرجر ========== */
+.hamburger-svg {
+  display: block;
+}
+
+.hamburger-line {
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
+  will-change: transform, opacity;
+}
+
+/* منع الأنيميشن من الظهور في اللابتوب */
+@media (min-width: 992px) {
+  .mobile-menu-btn,
+  .mobile-menu-btn .hamburger-svg,
+  .mobile-menu-btn .hamburger-line {
+    transition: none !important;
+    animation: none !important;
+  }
+}
+
+/* تحسين زر الهامبرجر */
+.mobile-menu-btn {
+  background: var(--color-bg-alt);
+  border: none;
+  padding: 10px;
+  cursor: pointer;
+  color: var(--color-text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--radius);
+  transition: var(--transition);
+  width: 44px;
+  height: 44px;
+  /* منع الوميض */
+  -webkit-tap-highlight-color: transparent;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+}
+
+.mobile-menu-btn:hover {
+  background: #e5e7eb;
+  transform: scale(1.05);
+}
+
+.mobile-menu-btn:active {
+  transform: scale(0.95);
+}
+
+
 /* تحسينات للشاشات المتوسطة */
 @media (min-width: 992px) and (max-width: 1199px) {
   .floating-buttons-desktop {
@@ -1284,7 +1346,7 @@ export default function Layout({ children, title = 'نور كلين', descriptio
     padding-bottom: 100px;
   }
 }
-  
+
         /* وضع الأفقي للموبايل */
         @media (orientation: landscape) and (max-height: 500px) {
           .floating-buttons {
