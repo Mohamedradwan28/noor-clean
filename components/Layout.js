@@ -245,24 +245,47 @@ export default function Layout({ children, title = 'نور كلين', descriptio
       <main className="main-content">{children}</main>
 
       {/* ✅ الأزرار العائمة - موبايل فقط - جنب بعض في المنتصف */}
-      <div className="floating-buttons mobile-only">
-        <a 
-          href={getWhatsAppLink()} 
-          className="floating-btn floating-btn-whatsapp"
-          target="_blank"
-          rel="noopener noreferrer"
-          aria-label="مراسلتنا على واتساب"
-        >
-          <WhatsAppIcon className="icon" />
-        </a>
-        <a 
-          href={getPhoneLink()} 
-          className="floating-btn floating-btn-call"
-          aria-label="الاتصال بنا"
-        >
-          <PhoneIcon className="icon" />
-        </a>
-      </div>
+      {/* ✅ الأزرار العائمة - موبايل فقط - جنب بعض في المنتصف */}
+<div className="floating-buttons mobile-only">
+  <a 
+    href={getWhatsAppLink()} 
+    className="floating-btn floating-btn-whatsapp"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="مراسلتنا على واتساب"
+  >
+    <WhatsAppIcon className="icon" />
+  </a>
+  <a 
+    href={getPhoneLink()} 
+    className="floating-btn floating-btn-call"
+    aria-label="الاتصال بنا"
+  >
+    <PhoneIcon className="icon" />
+  </a>
+</div>
+
+{/* ✅ الأزرار العائمة - ديسكتوب فقط - جانبين الشاشة */}
+<div className="floating-buttons-desktop desktop-only">
+  <a 
+    href={getPhoneLink()} 
+    className="floating-btn-desktop floating-btn-call"
+    aria-label="الاتصال بنا"
+  >
+    <PhoneIcon className="icon" />
+    <span className="floating-label">اتصل</span>
+  </a>
+  <a 
+    href={getWhatsAppLink()} 
+    className="floating-btn-desktop floating-btn-whatsapp"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="مراسلتنا على واتساب"
+  >
+    <WhatsAppIcon className="icon" />
+    <span className="floating-label">واتساب</span>
+  </a>
+</div>
 
       {/* ✅ الفوتر */}
       <footer className="footer">
@@ -1094,6 +1117,174 @@ export default function Layout({ children, title = 'نور كلين', descriptio
           }
         }
 
+
+
+        /* ========== الأزرار العائمة للديسكتوب - أسفل الشاشة ========== */
+.floating-buttons-desktop {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 150;
+  pointer-events: none;
+  display: flex;
+  justify-content: space-between;
+  padding: 0 24px;
+  width: 100%;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+/* زر الاتصال - يسار الشاشة */
+.floating-buttons-desktop .floating-btn-call {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  min-width: 140px;
+  height: 56px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-primary);
+  transition: var(--transition);
+  overflow: hidden;
+  position: relative;
+  direction: ltr;
+}
+
+/* زر واتساب - يمين الشاشة */
+.floating-buttons-desktop .floating-btn-whatsapp {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 24px;
+  min-width: 140px;
+  height: 56px;
+  border-radius: 50px;
+  background: linear-gradient(135deg, var(--color-whatsapp), var(--color-whatsapp-dark));
+  color: white;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.95rem;
+  box-shadow: var(--shadow-whatsapp);
+  transition: var(--transition);
+  overflow: hidden;
+  position: relative;
+  direction: ltr;
+}
+
+/* تأثير اللمعة */
+.floating-btn-desktop::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  right: -50%;
+  width: 200%;
+  height: 200%;
+  background: linear-gradient(
+    45deg,
+    transparent 30%,
+    rgba(255, 255, 255, 0.35) 50%,
+    transparent 70%
+  );
+  transform: rotate(45deg) translateX(-150%);
+  transition: transform 0.7s ease;
+  pointer-events: none;
+}
+
+.floating-btn-desktop:hover::after {
+  transform: rotate(45deg) translateX(150%);
+}
+
+/* تأثيرات التحويم */
+.floating-buttons-desktop .floating-btn-call:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
+}
+
+.floating-buttons-desktop .floating-btn-whatsapp:hover {
+  transform: translateY(-4px) scale(1.05);
+  box-shadow: 0 12px 35px rgba(37, 211, 102, 0.5);
+}
+
+.floating-btn-desktop:active {
+  transform: translateY(-1px) scale(1.02);
+}
+
+/* الأيقونة والنص */
+.floating-btn-desktop .icon {
+  width: 24px;
+  height: 24px;
+  flex-shrink: 0;
+}
+
+.floating-label {
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+/* ========== Media Queries ========== */
+
+/* شاشات اللابتوب الكبيرة */
+@media (min-width: 1200px) {
+  .floating-buttons-desktop {
+    padding: 0 40px;
+    bottom: 20px;
+  }
+  
+  .floating-buttons-desktop .floating-btn-desktop {
+    min-width: 150px;
+    padding: 16px 28px;
+    height: 60px;
+  }
+  
+  .floating-btn-desktop .icon {
+    width: 26px;
+    height: 26px;
+  }
+  
+  .floating-label {
+    font-size: 1rem;
+  }
+}
+
+/* إخفاء أزرار الديسكتوب في التابلت والموبايل */
+@media (max-width: 991px) {
+  .floating-buttons-desktop {
+    display: none !important;
+  }
+}
+
+/* تحسينات للشاشات المتوسطة */
+@media (min-width: 992px) and (max-width: 1199px) {
+  .floating-buttons-desktop {
+    padding: 0 20px;
+    bottom: 16px;
+  }
+  
+  .floating-buttons-desktop .floating-btn-desktop {
+    min-width: 130px;
+    padding: 12px 20px;
+    height: 52px;
+    font-size: 0.9rem;
+  }
+}
+
+/* منع التداخل مع الفوتر */
+@media (min-width: 992px) {
+  .footer {
+    padding-bottom: 100px;
+  }
+}
+  
         /* وضع الأفقي للموبايل */
         @media (orientation: landscape) and (max-height: 500px) {
           .floating-buttons {
