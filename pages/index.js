@@ -30,9 +30,9 @@ export default function Home() {
   }, []);
 
   // Prepare SEO data
-  const baseUrl = settings.seo?.canonical || 'https://noorclean.com';
+  const baseUrl = settings.seo?.canonical || 'https://noor-clean.vercel.app/';
   const siteTitle = `${settings.siteName || 'نور كلين'} | ${settings.tagline || 'خدمات تنظيف ومكافحة حشرات بالرياض'}`;
-  const siteDescription = settings.seo?.defaultDescription || 'أفضل خدمات التنظيف ومكافحة الحشرات في الرياض. ضمان كامل، فريق محترف، مواد آمنة معتمدة من وزارة الصحة';
+  const siteDescription = settings.seo?.defaultDescription || 'أفضل خدمات تنظيف ومكافحة حشرات في الرياض. ضمان كامل، فريق محترف، مواد آمنة معتمدة من وزارة الصحة';
   const siteKeywords = settings.seo?.defaultKeywords || 'تنظيف، مكافحة حشرات، الرياض، نور كلين، تنظيف فلل، تنظيف شقق، تنظيف كنب، غسيل سجاد، تسليك مجاري، تنظيف خزانات، عزل أسطح';
   const siteImage = `${baseUrl}/og-image.jpg`;
 
@@ -44,7 +44,7 @@ export default function Home() {
     "image": `${baseUrl}/logo.png`,
     "@id": baseUrl,
     "url": baseUrl,
-    "telephone": settings.phone || '966500000000',
+    "telephone": settings.phone || '+9660578048389',
     "address": {
       "@type": "PostalAddress",
       "streetAddress": "",
@@ -66,7 +66,7 @@ export default function Home() {
     },
     "priceRange": "$$",
     "sameAs": [
-      `https://wa.me/${settings.whatsapp || '966500000000'}`
+      `https://wa.me/${settings.whatsapp || '+9660578048389'}`
     ],
     "makesOffer": services.filter(s => s.active).map(service => ({
       "@type": "Offer",
@@ -214,14 +214,14 @@ export default function Home() {
               <span itemProp="name">{settings.siteName || 'نور كلين'}</span> - {settings.tagline || 'شريكك للنظافة في الرياض'}
             </h1>
             <p itemProp="description">
-              نقدم أفضل خدمات التنظيف الشامل ومكافحة الحشرات بأحدث التقنيات. ضمان كامل، فريق محترف، ومواد آمنة معتمدة من وزارة الصحة السعودية.
+              نقدم أفضل خدمات تنظيف الشامل ومكافحة لحشرات بأحدث التقنيات. ضمان كامل، فريق محترف، ومواد آمنة معتمدة من وزارة الصحة السعودية.
             </p>
             <div className="hero-buttons" itemProp="action" itemScope itemType="https://schema.org/ReserveAction">
               <Link href="/contact" className="btn btn-primary btn-lg" itemProp="target">
                 📞 احجز خدمتك الآن
               </Link>
               <a 
-                href={`https://wa.me/${settings.whatsapp || '966500000000'}`} 
+                href={`https://wa.me/${settings.whatsapp || '+9660578048389'}`} 
                 className="btn btn-secondary btn-lg" 
                 target="_blank" 
                 rel="noopener noreferrer"
@@ -237,7 +237,7 @@ export default function Home() {
           {/* ===== Hero Stats with Schema ===== */}
           <div className="hero-stats" itemScope itemType="https://schema.org/Organization">
             <meta itemProp="name" content={settings.siteName || 'نور كلين'} />
-            <meta itemProp="telephone" content={settings.phone || '966500000000'} />
+            <meta itemProp="telephone" content={settings.phone || '+9660578048389'} />
             <div className="hero-stat">
               <span className="hero-stat-number" itemProp="numberOfEmployees">{services.length}</span>
               <span className="hero-stat-label">خدمة متخصصة</span>

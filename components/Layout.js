@@ -14,6 +14,9 @@ export default function Layout({ children, title = 'نور كلين', descriptio
   const router = useRouter();
   const [settings, setSettings] = useState({});
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  
+  // ✅ جديد: منع الوميض عند التحميل الأولي
+  const [isMounted, setIsMounted] = useState(false);
 
   // جلب الإعدادات من API
   useEffect(() => {
@@ -31,10 +34,17 @@ export default function Layout({ children, title = 'نور كلين', descriptio
     fetchSettings();
   }, []);
 
-  // إغلاق القائمة عند تغيير الصفحة
+  // ✅ تفعيل الانتقالات بعد التحميل الكامل
   useEffect(() => {
-    setMobileMenuOpen(false);
-  }, [router.pathname]);
+    setIsMounted(true);
+  }, []);
+
+  // ✅ إغلاق القائمة عند تغيير الصفحة (مع تحسين لمنع التنفيذ عند أول تحميل)
+  useEffect(() => {
+    if (router.isReady) {
+      setMobileMenuOpen(false);
+    }
+  }, [router.pathname, router.isReady]);
 
   // منع التمرير عند فتح القائمة المحمولة
   useEffect(() => {
@@ -79,44 +89,46 @@ export default function Layout({ children, title = 'نور كلين', descriptio
     </svg>
   );
 
-  // ✅ أيقونة الهامبرجر المتحركة
-  // ✅ أيقونة الهامبرجر المتحركة - نسخة محسّنة
-const HamburgerIcon = ({ open }) => (
-  <svg 
-    viewBox="0 0 24 24" 
-    width="24" 
-    height="24" 
-    fill="none" 
-    stroke="currentColor" 
-    strokeWidth="2" 
-    strokeLinecap="round"
-    className="hamburger-svg"
-  >
-    <line 
-      className="hamburger-line top"
-      x1="3" y1="6" x2="21" y2="6" 
-      style={{ 
-        transform: open ? 'rotate(45deg) translate(6px, 6px)' : 'none',
-        transformOrigin: 'center',
-      }} 
-    />
-    <line 
-      className="hamburger-line middle"
-      x1="3" y1="12" x2="21" y2="12" 
-      style={{ 
-        opacity: open ? 0 : 1,
-      }} 
-    />
-    <line 
-      className="hamburger-line bottom"
-      x1="3" y1="18" x2="21" y2="18" 
-      style={{ 
-        transform: open ? 'rotate(-45deg) translate(6px, -6px)' : 'none',
-        transformOrigin: 'center',
-      }} 
-    />
-  </svg>
-);
+  // ✅ أيقونة الهامبرجر المتحركة - نسخة محسّنة مع isMounted
+  const HamburgerIcon = ({ open, isMounted }) => (
+    <svg 
+      viewBox="0 0 24 24" 
+      width="24" 
+      height="24" 
+      fill="none" 
+      stroke="currentColor" 
+      strokeWidth="2" 
+      strokeLinecap="round"
+      className="hamburger-svg"
+    >
+      <line 
+        className="hamburger-line top"
+        x1="3" y1="6" x2="21" y2="6" 
+        style={{ 
+          transform: open ? 'rotate(45deg) translate(6px, 6px)' : 'none',
+          transformOrigin: 'center',
+          transition: isMounted ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+        }} 
+      />
+      <line 
+        className="hamburger-line middle"
+        x1="3" y1="12" x2="21" y2="12" 
+        style={{ 
+          opacity: open ? 0 : 1,
+          transition: isMounted ? 'opacity 0.2s ease' : 'none',
+        }} 
+      />
+      <line 
+        className="hamburger-line bottom"
+        x1="3" y1="18" x2="21" y2="18" 
+        style={{ 
+          transform: open ? 'rotate(-45deg) translate(6px, -6px)' : 'none',
+          transformOrigin: 'center',
+          transition: isMounted ? 'transform 0.3s cubic-bezier(0.4, 0, 0.2, 1)' : 'none',
+        }} 
+      />
+    </svg>
+  );
 
   const CloseIcon = () => (
     <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round">
@@ -193,7 +205,8 @@ const HamburgerIcon = ({ open }) => (
             aria-label={mobileMenuOpen ? 'إغلاق القائمة' : 'فتح القائمة'}
             aria-expanded={mobileMenuOpen}
           >
-            <HamburgerIcon open={mobileMenuOpen} />
+            {/* ✅ تمرير isMounted للأيقونة */}
+            <HamburgerIcon open={mobileMenuOpen} isMounted={isMounted} />
           </button>
         </div>
       </header>
@@ -255,47 +268,49 @@ const HamburgerIcon = ({ open }) => (
       <main className="main-content">{children}</main>
 
       {/* ✅ الأزرار العائمة - موبايل فقط - جنب بعض في المنتصف */}
-      {/* ✅ الأزرار العائمة - موبايل فقط - جنب بعض في المنتصف */}
-<div className="floating-buttons mobile-only">
-  <a 
-    href={getWhatsAppLink()} 
-    className="floating-btn floating-btn-whatsapp"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="مراسلتنا على واتساب"
-  >
-    <WhatsAppIcon className="icon" />
-  </a>
-  <a 
-    href={getPhoneLink()} 
-    className="floating-btn floating-btn-call"
-    aria-label="الاتصال بنا"
-  >
-    <PhoneIcon className="icon" />
-  </a>
-</div>
+      <div className="floating-buttons mobile-only">
+        <a 
+          href={getWhatsAppLink()} 
+          className="floating-btn floating-btn-whatsapp"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="مراسلتنا على واتساب"
+        >
+          <WhatsAppIcon className="icon" />
+        </a>
+        <a 
+          href={getPhoneLink()} 
+          className="floating-btn floating-btn-call"
+          aria-label="الاتصال بنا"
+        >
+          <PhoneIcon className="icon" />
+        </a>
+      </div>
 
-{/* ✅ الأزرار العائمة - ديسكتوب فقط - جانبين الشاشة */}
-<div className="floating-buttons-desktop desktop-only">
-  <a 
-    href={getPhoneLink()} 
-    className="floating-btn-desktop floating-btn-call"
-    aria-label="الاتصال بنا"
-  >
-    <PhoneIcon className="icon" />
-    <span className="floating-label">اتصل</span>
-  </a>
-  <a 
-    href={getWhatsAppLink()} 
-    className="floating-btn-desktop floating-btn-whatsapp"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="مراسلتنا على واتساب"
-  >
-    <WhatsAppIcon className="icon" />
-    <span className="floating-label">واتساب</span>
-  </a>
-</div>
+      {/* ✅ الأزرار العائمة - ديسكتوب فقط - أسفل الشاشة يمين وشمال */}
+      <div className="floating-buttons-desktop desktop-only">
+        {/* زر الاتصال - يسار الشاشة */}
+        <a 
+          href={getPhoneLink()} 
+          className="floating-btn-desktop floating-btn-call"
+          aria-label="الاتصال بنا"
+        >
+          <PhoneIcon className="icon" />
+          <span className="floating-label">اتصل</span>
+        </a>
+        
+        {/* زر واتساب - يمين الشاشة */}
+        <a 
+          href={getWhatsAppLink()} 
+          className="floating-btn-desktop floating-btn-whatsapp"
+          target="_blank"
+          rel="noopener noreferrer"
+          aria-label="مراسلتنا على واتساب"
+        >
+          <WhatsAppIcon className="icon" />
+          <span className="floating-label">واتساب</span>
+        </a>
+      </div>
 
       {/* ✅ الفوتر */}
       <footer className="footer">
@@ -594,6 +609,9 @@ const HamburgerIcon = ({ open }) => (
           transition: var(--transition);
           width: 44px;
           height: 44px;
+          -webkit-tap-highlight-color: transparent;
+          backface-visibility: hidden;
+          transform: translateZ(0);
         }
 
         .mobile-menu-btn:hover {
@@ -603,6 +621,25 @@ const HamburgerIcon = ({ open }) => (
 
         .mobile-menu-btn:active {
           transform: scale(0.95);
+        }
+
+        /* ========== أنيميشن الهامبرجر المحسّن ========== */
+        .hamburger-svg {
+          display: block;
+        }
+
+        .hamburger-line {
+          /* ✅ الانتقال يُضاف ديناميكياً عبر inline-style باستخدام isMounted */
+        }
+
+        /* منع الأنيميشن في اللابتوب لمنع الوميض */
+        @media (min-width: 992px) {
+          .mobile-menu-btn,
+          .mobile-menu-btn .hamburger-svg,
+          .mobile-menu-btn .hamburger-line {
+            transition: none !important;
+            animation: none !important;
+          }
         }
 
         /* ========== القائمة المحمولة ========== */
@@ -768,7 +805,7 @@ const HamburgerIcon = ({ open }) => (
           min-height: calc(100vh - 280px);
         }
 
-        /* ========== الأزرار العائمة ========== */
+        /* ========== الأزرار العائمة - موبايل ========== */
         .floating-buttons {
           position: fixed;
           bottom: 24px;
@@ -841,6 +878,118 @@ const HamburgerIcon = ({ open }) => (
           width: 26px;
           height: 26px;
           flex-shrink: 0;
+        }
+
+        /* ========== الأزرار العائمة للديسكتوب - أسفل الشاشة ========== */
+        .floating-buttons-desktop {
+          position: fixed;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          z-index: 150;
+          pointer-events: none;
+          display: flex;
+          justify-content: space-between;
+          padding: 0 24px;
+          width: 100%;
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+
+        /* زر الاتصال - يسار الشاشة */
+        .floating-buttons-desktop .floating-btn-call {
+          pointer-events: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 14px 24px;
+          min-width: 140px;
+          height: 56px;
+          border-radius: 50px;
+          background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+          color: white;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.95rem;
+          box-shadow: var(--shadow-primary);
+          transition: var(--transition);
+          overflow: hidden;
+          position: relative;
+          direction: ltr;
+        }
+
+        /* زر واتساب - يمين الشاشة */
+        .floating-buttons-desktop .floating-btn-whatsapp {
+          pointer-events: auto;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          padding: 14px 24px;
+          min-width: 140px;
+          height: 56px;
+          border-radius: 50px;
+          background: linear-gradient(135deg, var(--color-whatsapp), var(--color-whatsapp-dark));
+          color: white;
+          text-decoration: none;
+          font-weight: 600;
+          font-size: 0.95rem;
+          box-shadow: var(--shadow-whatsapp);
+          transition: var(--transition);
+          overflow: hidden;
+          position: relative;
+          direction: ltr;
+        }
+
+        /* تأثير اللمعة للأزرار الجانبية */
+        .floating-btn-desktop::after {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -50%;
+          width: 200%;
+          height: 200%;
+          background: linear-gradient(
+            45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.35) 50%,
+            transparent 70%
+          );
+          transform: rotate(45deg) translateX(-150%);
+          transition: transform 0.7s ease;
+          pointer-events: none;
+        }
+
+        .floating-btn-desktop:hover::after {
+          transform: rotate(45deg) translateX(150%);
+        }
+
+        /* تأثيرات التحويم */
+        .floating-buttons-desktop .floating-btn-call:hover {
+          transform: translateY(-4px) scale(1.05);
+          box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
+        }
+
+        .floating-buttons-desktop .floating-btn-whatsapp:hover {
+          transform: translateY(-4px) scale(1.05);
+          box-shadow: 0 12px 35px rgba(37, 211, 102, 0.5);
+        }
+
+        .floating-btn-desktop:active {
+          transform: translateY(-1px) scale(1.02);
+        }
+
+        /* الأيقونة والنص */
+        .floating-btn-desktop .icon {
+          width: 24px;
+          height: 24px;
+          flex-shrink: 0;
+        }
+
+        .floating-label {
+          white-space: nowrap;
+          font-size: 0.9rem;
         }
 
         /* ========== الفوتر ========== */
@@ -1127,226 +1276,51 @@ const HamburgerIcon = ({ open }) => (
           }
         }
 
+        /* شاشات اللابتوب الكبيرة */
+        @media (min-width: 1200px) {
+          .floating-buttons-desktop {
+            padding: 0 40px;
+            bottom: 20px;
+          }
+          
+          .floating-buttons-desktop .floating-btn-desktop {
+            min-width: 150px;
+            padding: 16px 28px;
+            height: 60px;
+          }
+          
+          .floating-btn-desktop .icon {
+            width: 26px;
+            height: 26px;
+          }
+          
+          .floating-label {
+            font-size: 1rem;
+          }
+        }
 
+        /* تحسينات للشاشات المتوسطة */
+        @media (min-width: 992px) and (max-width: 1199px) {
+          .floating-buttons-desktop {
+            padding: 0 20px;
+            bottom: 16px;
+          }
+          
+          .floating-buttons-desktop .floating-btn-desktop {
+            min-width: 130px;
+            padding: 12px 20px;
+            height: 52px;
+            font-size: 0.9rem;
+          }
+        }
 
-        /* ========== الأزرار العائمة للديسكتوب - أسفل الشاشة ========== */
-.floating-buttons-desktop {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  z-index: 150;
-  pointer-events: none;
-  display: flex;
-  justify-content: space-between;
-  padding: 0 24px;
-  width: 100%;
-  max-width: 1400px;
-  margin: 0 auto;
-}
-
-/* زر الاتصال - يسار الشاشة */
-.floating-buttons-desktop .floating-btn-call {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 24px;
-  min-width: 140px;
-  height: 56px;
-  border-radius: 50px;
-  background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  box-shadow: var(--shadow-primary);
-  transition: var(--transition);
-  overflow: hidden;
-  position: relative;
-  direction: ltr;
-}
-
-/* زر واتساب - يمين الشاشة */
-.floating-buttons-desktop .floating-btn-whatsapp {
-  pointer-events: auto;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 14px 24px;
-  min-width: 140px;
-  height: 56px;
-  border-radius: 50px;
-  background: linear-gradient(135deg, var(--color-whatsapp), var(--color-whatsapp-dark));
-  color: white;
-  text-decoration: none;
-  font-weight: 600;
-  font-size: 0.95rem;
-  box-shadow: var(--shadow-whatsapp);
-  transition: var(--transition);
-  overflow: hidden;
-  position: relative;
-  direction: ltr;
-}
-
-/* تأثير اللمعة */
-.floating-btn-desktop::after {
-  content: '';
-  position: absolute;
-  top: -50%;
-  right: -50%;
-  width: 200%;
-  height: 200%;
-  background: linear-gradient(
-    45deg,
-    transparent 30%,
-    rgba(255, 255, 255, 0.35) 50%,
-    transparent 70%
-  );
-  transform: rotate(45deg) translateX(-150%);
-  transition: transform 0.7s ease;
-  pointer-events: none;
-}
-
-.floating-btn-desktop:hover::after {
-  transform: rotate(45deg) translateX(150%);
-}
-
-/* تأثيرات التحويم */
-.floating-buttons-desktop .floating-btn-call:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 12px 35px rgba(16, 185, 129, 0.5);
-}
-
-.floating-buttons-desktop .floating-btn-whatsapp:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 12px 35px rgba(37, 211, 102, 0.5);
-}
-
-.floating-btn-desktop:active {
-  transform: translateY(-1px) scale(1.02);
-}
-
-/* الأيقونة والنص */
-.floating-btn-desktop .icon {
-  width: 24px;
-  height: 24px;
-  flex-shrink: 0;
-}
-
-.floating-label {
-  white-space: nowrap;
-  font-size: 0.9rem;
-}
-
-/* ========== Media Queries ========== */
-
-/* شاشات اللابتوب الكبيرة */
-@media (min-width: 1200px) {
-  .floating-buttons-desktop {
-    padding: 0 40px;
-    bottom: 20px;
-  }
-  
-  .floating-buttons-desktop .floating-btn-desktop {
-    min-width: 150px;
-    padding: 16px 28px;
-    height: 60px;
-  }
-  
-  .floating-btn-desktop .icon {
-    width: 26px;
-    height: 26px;
-  }
-  
-  .floating-label {
-    font-size: 1rem;
-  }
-}
-
-/* إخفاء أزرار الديسكتوب في التابلت والموبايل */
-@media (max-width: 991px) {
-  .floating-buttons-desktop {
-    display: none !important;
-  }
-}
-
-
-
-/* ========== تحسين أنيميشن الهامبرجر ========== */
-.hamburger-svg {
-  display: block;
-}
-
-.hamburger-line {
-  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.2s ease;
-  will-change: transform, opacity;
-}
-
-/* منع الأنيميشن من الظهور في اللابتوب */
-@media (min-width: 992px) {
-  .mobile-menu-btn,
-  .mobile-menu-btn .hamburger-svg,
-  .mobile-menu-btn .hamburger-line {
-    transition: none !important;
-    animation: none !important;
-  }
-}
-
-/* تحسين زر الهامبرجر */
-.mobile-menu-btn {
-  background: var(--color-bg-alt);
-  border: none;
-  padding: 10px;
-  cursor: pointer;
-  color: var(--color-text);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: var(--radius);
-  transition: var(--transition);
-  width: 44px;
-  height: 44px;
-  /* منع الوميض */
-  -webkit-tap-highlight-color: transparent;
-  backface-visibility: hidden;
-  transform: translateZ(0);
-}
-
-.mobile-menu-btn:hover {
-  background: #e5e7eb;
-  transform: scale(1.05);
-}
-
-.mobile-menu-btn:active {
-  transform: scale(0.95);
-}
-
-
-/* تحسينات للشاشات المتوسطة */
-@media (min-width: 992px) and (max-width: 1199px) {
-  .floating-buttons-desktop {
-    padding: 0 20px;
-    bottom: 16px;
-  }
-  
-  .floating-buttons-desktop .floating-btn-desktop {
-    min-width: 130px;
-    padding: 12px 20px;
-    height: 52px;
-    font-size: 0.9rem;
-  }
-}
-
-/* منع التداخل مع الفوتر */
-@media (min-width: 992px) {
-  .footer {
-    padding-bottom: 100px;
-  }
-}
-
+        /* منع التداخل مع الفوتر */
+        @media (min-width: 992px) {
+          .footer {
+            padding-bottom: 100px;
+          }
+        }
+        
         /* وضع الأفقي للموبايل */
         @media (orientation: landscape) and (max-height: 500px) {
           .floating-buttons {
